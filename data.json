@@ -1,0 +1,41 @@
+{
+  "technology": {
+    "scope": [
+      "Informasi dan Komunikasi: AI, cloud computing, 5G, IoT",
+      "Industri & Manufaktur: Otomasi, robotika, digital twin, smart factory",
+      "Kesehatan: Telemedicine, bioinformatika, wearable devices, AI diagnostik",
+      "Energi & Lingkungan: Teknologi hijau, energi terbarukan, smart grid",
+      "Transportasi: Mobil otonom, kendaraan listrik, sistem navigasi cerdas",
+      "Pendidikan: E-learning, AR/VR, adaptive learning systems",
+      "Keuangan: Fintech, blockchain, sistem pembayaran digital"
+    ],
+    "prospects": [
+      "AI & Machine Learning diperkirakan mencapai pasar global $1 triliun pada 2030",
+      "Blockchain digunakan di sektor keuangan, logistik, hingga sistem voting",
+      "Quantum Computing akan merevolusi enkripsi, farmasi, dan optimalisasi industri",
+      "Teknologi berkelanjutan mendapatkan lebih banyak investasi setiap tahun",
+      "Edge Computing dan 6G akan menjadi tulang punggung industri 5.0"
+    ],
+    "potential": [
+      "AI dapat mengotomatisasi 30-50% tugas rutin lintas sektor",
+      "Teknologi digital memperluas akses ke wilayah terpencil",
+      "Inovasi model bisnis baru seperti freemium, SaaS, dan marketplace",
+      "Teknologi kesehatan dan kota pintar meningkatkan kualitas hidup",
+      "Big data memberikan kemampuan prediktif untuk pengambilan keputusan"
+    ],
+    "economy": [
+      "Ekonomi digital menyumbang lebih dari 15% PDB negara maju",
+      "Penciptaan lapangan kerja baru seperti data scientist dan AI engineer",
+      "Otomatisasi menurunkan biaya operasional secara signifikan",
+      "Mendorong ekosistem startup dan investasi modal ventura",
+      "Mendemokratisasi akses ke modal dan pasar global"
+    ],
+    "efficiency": [
+      "Sistem ERP dan AI mempercepat proses dan mengurangi human error",
+      "IoT dan smart grid meningkatkan efisiensi konsumsi energi",
+      "Otomatisasi dan cetak 3D memangkas waktu produksi hingga 70%",
+      "AI dalam logistik mengoptimalkan rute dan waktu pengiriman",
+      "Layanan publik digital mempercepat birokrasi dan meningkatkan transparansi"
+    ]
+  }
+}
