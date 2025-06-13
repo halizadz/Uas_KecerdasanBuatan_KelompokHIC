@@ -10,17 +10,19 @@ from flask_cors import CORS
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from redis import Redis
+from text_to_score import text_to_score
+
 
 app = Flask(__name__)
 CORS(app) 
 
 # Konfigurasi Redis untuk Limiter
-redis_client = Redis(host='redis', port=3000, decode_responses=True)
+redis_client = Redis(host='redis', port=6379, decode_responses=True)
 limiter = Limiter(
     app=app,
     key_func=get_remote_address,
-    storage_uri="redis://redis:3000",
-    default_limits=["200 per day", "50 per hour"]
+    storage_uri="redis://redis:6379",
+    default_limits=["1000 per day", "100 per hour"]
 )
 
 @app.route('/')
@@ -36,13 +38,6 @@ def home():
 # Setup logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-# Setup rate limiter
-limiter = Limiter(
-    app=app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
 
 # Load model ANFIS
 class CustomANFIS(nn.Module):
@@ -89,30 +84,48 @@ except Exception as e:
 # Threshold criticality
 BETA_CR = 0.477
 
+def preprocess_input(data):
+    processed = {}
+    for field in ['scope', 'prospects', 'potential', 'economy', 'efficiency']:
+        value = data.get(field, 0.5)
+        if isinstance(value, (list, tuple)):
+            # Handle text descriptions
+            processed[field] = text_to_score(" ".join(value), field)
+        elif isinstance(value, (int, float)):
+            # Direct numeric value
+            processed[field] = float(value)
+        else:
+            # Default fallback
+            processed[field] = 0.5
+    return processed
+
+
 @app.route('/predict', methods=['POST'])
 @limiter.limit("10 per minute")
 def predict():
     try:
-        # Validasi input
         data = request.json
+        logger.info(f"DATA MASUK: {data}")
+        
         if not data:
             return jsonify({'error': 'No data provided'}), 400
             
-        required_fields = ['scope', 'prospects', 'potential', 'economy', 'efficiency']
-        if not all(field in data for field in required_fields):
-            return jsonify({'error': 'Missing required fields'}), 400
+        # Validate input structure
+        if not isinstance(data, dict):
+            return jsonify({'error': 'Input must be a JSON object'}), 400
             
-        # Konversi input ke float
+        # Process input
         try:
+            processed_data = preprocess_input(data)
             X = np.array([[
-                float(data['scope']),
-                float(data['prospects']),
-                float(data['potential']),
-                float(data['economy']),
-                float(data['efficiency'])
+                float(processed_data['scope']),
+                float(processed_data['prospects']),
+                float(processed_data['potential']),
+                float(processed_data['economy']),
+                float(processed_data['efficiency'])
             ]])
-        except ValueError:
-            return jsonify({'error': 'Invalid input values'}), 400
+        except (ValueError, KeyError) as e:
+            return jsonify({'error': f'Invalid input format: {str(e)}'}), 400
             
         # Validasi range input (0-1)
         if not all(0 <= x <= 1 for x in X[0]):
@@ -131,7 +144,8 @@ def predict():
         
         return jsonify({
             'criticality': criticality,
-            'status': status
+            'status': status,
+            'input_scores': processed_data  # ✅ Ini bagian yang diperlukan frontend
         })
         
     except Exception as e:
@@ -170,6 +184,12 @@ def api_docs():
             }
         }
     })
+
+@app.route('/analysis', methods=['GET'])
+@limiter.exempt
+def analysis():
+    return jsonify({'message': 'Analysis endpoint works. Implement as needed.'})
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)

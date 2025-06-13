@@ -1,6 +1,6 @@
 // File: src/app.jsx
 import { useState, useRef } from 'react';
-// import LossChart from '/components/Chart';
+import LossChart from '/components/chart.jsx';
 import { useEffect } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -32,17 +32,27 @@ export default function App() {
     { name: '5G', criticality: 0.58, status: 'Critical' },
     { name: 'IoT', criticality: 0.45, status: 'Non-Critical' }
   ];
-
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
     setFile(selectedFile);
-    
+
     if (selectedFile) {
       const reader = new FileReader();
       reader.onload = (event) => {
         try {
           const data = JSON.parse(event.target.result);
           setFileData(data);
+
+          // ✅ Pindahkan ke sini agar dijalankan setelah file terbaca
+          if (!Array.isArray(data)) {
+            setInputs({
+              scope: typeof data.scope === 'number' ? data.scope : 0.5,
+              prospects: typeof data.prospects === 'number' ? data.prospects : 0.5,
+              potential: typeof data.potential === 'number' ? data.potential : 0.5,
+              economy: typeof data.economy === 'number' ? data.economy : 0.5,
+              efficiency: typeof data.efficiency === 'number' ? data.efficiency : 0.5,
+            });
+          }
         } catch (error) {
           toast.error('File format is invalid');
         }
@@ -50,6 +60,7 @@ export default function App() {
       reader.readAsText(selectedFile);
     }
   };
+
 
   const handleInputChange = (key, value) => {
     setInputs(prev => ({
@@ -83,6 +94,11 @@ export default function App() {
       const response = await axios.post(`${API_URL}/predict`, fileData);
       setResult(response.data);
       toast.success('Analysis successful!');
+
+      // ✅ Update range slider dari input_scores
+      if (response.data.input_scores) {
+        setInputs(response.data.input_scores);
+      }
     } catch (error) {
       console.error('Analysis error:', error);
       setResult({ criticality: 0, status: 'Error' });
@@ -91,6 +107,7 @@ export default function App() {
       setIsLoading(false);
     }
   };
+
 
   useEffect(() => {
     const fetchTechData = async () => {
@@ -549,8 +566,8 @@ export default function App() {
                 <div>
                   <h3 className="text-xl font-semibold mb-3">Our Technology</h3>
                   <p className="text-gray-700">
-                    TechCritical utilizes Adaptive Neuro-Fuzzy Inference System (ANFIS) to evaluate and predict the criticality of emerging technologies. 
-                    Our system combines the learning capabilities of neural networks with the reasoning power of fuzzy logic to provide accurate assessments.
+                    TechCritical utilizes Adaptive Neuro-Fuzzy Inference System (ANFIS) to evaluate and predict the criticality of emerging technologies. Our system combines the learning capabilities of neural networks with the reasoning power of fuzzy logic to provide accurate assessments.
+Additionally, we integrate Natural Language Processing (NLP) techniques to extract relevant insights from textual data, enabling the system to analyze articles, reports, and expert opinions about new technologies. This combination ensures a more comprehensive and intelligent evaluation process.
                   </p>
                 </div>
                 
@@ -574,7 +591,7 @@ export default function App() {
                 <div>
                   <h3 className="text-xl font-semibold mb-3">Development Team</h3>
                   <p className="text-gray-700">
-                    This system was developed as part of a research project in intelligent systems and fuzzy logic applications.
+                    This system was developed by Haliza Adzikia Sukarno (2310631170087), Indira Ayu Anggraeni (231063117002), and Cindy Priaulia Maharani Putri (2310631170129) as part of the Intelligence Semester Final Exam with the theme of research projects in the field of intelligent systems and fuzzy logic applications.
                   </p>
                 </div>
               </div>
